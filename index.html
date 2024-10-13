@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+	<head> 
+		<title>Graph Paper Generator</title>
+		<script type="text/javascript" src="jszip.min.js"></script>
+		<script>
+			"use strict";
+			var patterns = new Array();
+			patterns["dash"] = "4,4";
+			patterns["dashDot"] = "4,3,1,3";
+			patterns["dot"] = "1,3";
+			patterns["lgDash"] = "8,3";
+			patterns["lgDashDot"] = "8,3,1,3";
+			patterns["lgDashDotDot"] = "8,3,1,3,1,3";
+			patterns["solid"] = "0";
+			patterns["sysDash"] = "3,1";
+			patterns["sysDashDot"] = "3,1,1,1";
+			patterns["sysDashDotDot"] = "3,1,1,1,1,1";
+			patterns["sysDot"] = "1,1";
+			
+			function getLineGeometryXML(id,sx,sy,ex,ey,colour,type,width)
+			{
+				var s = "<wps:wsp>";
+				s = s + "<wps:cNvPr id='"+id+"' name='line "+id+"'/>";
+				s = s + "<wps:cNvCnPr/>";
+				s = s + "<wps:spPr>";
+				s = s + "<a:xfrm><a:off x='"+Math.round(sx*360000)+"' y='"+Math.round(sy*360000)+"'/><a:ext cx='"+Math.round((ex-sx)*360000)+"' cy='"+Math.round((ey-sy)*360000)+"'/></a:xfrm>";
+				s = s + "<a:prstGeom prst='line'><a:avLst/></a:prstGeom>";
+				s = s + "<a:ln w='"+Math.round(width*12700)+"' cap='flat' cmpd='sng' algn='ctr'>";
+				s = s + "<a:solidFill><a:srgbClr val='"+colour+"'/></a:solidFill>";
+				s = s + "<a:prstDash val='"+type+"'/>"
+				s = s + "<a:miter lim='800000'/>";
+				s = s + "</a:ln>";
+				s = s + "</wps:spPr>";
+				s = s + "<wps:bodyPr/>";
+				s = s + "</wps:wsp>";
+				return s;
+			}
+			
+			function download()
+			{
+				var length = document.getElementById("lengthValue").value;
+				var height = document.getElementById("heightValue").value;
+				
+				var twoCmWidth = document.getElementById("twoCmWidth").value;
+				var twoCmColour = document.getElementById(name+"twoCmColour").value;
+				twoCmColour = twoCmColour.substring(1,twoCmColour.lenbth);
+				var twoCmDash = document.getElementById("twoCmDash").value;
+				
+				var oneCmWidth = document.getElementById("oneCmWidth").value;
+				var oneCmColour = document.getElementById(name+"oneCmColour").value;
+				oneCmColour = oneCmColour.substring(1,oneCmColour.lenbth);
+				var oneCmDash = document.getElementById("oneCmDash").value;
+				
+				var twoMmWidth = document.getElementById("twoMmWidth").value;
+				var twoMmColour = document.getElementById(name+"twoMmColour").value;
+				twoMmColour = twoMmColour.substring(1,twoMmColour.lenbth);
+				var twoMmDash = document.getElementById("twoMmDash").value;
+				
+				console.log("Length="+length);
+				console.log("Height="+height);
+				console.log("twoCmWidth="+twoCmWidth);
+				console.log("twoCmColour="+twoCmColour);
+				console.log("twoCmDash="+twoCmDash);
+				console.log("oneCmWidth="+oneCmWidth);
+				console.log("oneCmColour="+oneCmColour);
+				console.log("oneCmDash="+oneCmDash);
+				console.log("twoMmWidth="+twoMmWidth);
+				console.log("twoMmColour="+twoMmColour);
+				console.log("twoMmDash="+twoMmDash);
+				
+				var zip = new JSZip();
+				{
+					zip.folder("_rels");
+					zip.file("_rels/.rels", "<Relationships xmlns='http://schemas.openxmlformats.org/package/2006/relationships'><Relationship Id='rId1' Type='http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument' Target='word/document.xml'/></Relationships>");
+				}
+				
+				{
+					var content = "";
+					content = content + "<Types xmlns='http://schemas.openxmlformats.org/package/2006/content-types'>"
+					content = content + "<Default ContentType='application/vnd.openxmlformats-package.relationships+xml' Extension='rels'/>"
+					content = content + "<Default ContentType='application/xml' Extension='xml'/>"
+					content = content + "<Override ContentType='application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml' PartName='/word/document.xml'/>"
+					content = content + "</Types>"
+					zip.file("[Content_Types].xml", content);
+				}
+				
+				{
+					zip.folder("word/_rels");
+					zip.file("word/_rels/document.xml.rels","<Relationships xmlns='http://schemas.openxmlformats.org/package/2006/relationships'></Relationships>");
+				}
+				
+				{
+					var s = "";
+					s = s + "<w:document xmlns:wps='http://schemas.microsoft.com/office/word/2010/wordprocessingShape' xmlns:wne='http://schemas.microsoft.com/office/word/2006/wordml' xmlns:wpi='http://schemas.microsoft.com/office/word/2010/wordprocessingInk' xmlns:wpg='http://schemas.microsoft.com/office/word/2010/wordprocessingGroup' xmlns:w16se='http://schemas.microsoft.com/office/word/2015/wordml/symex' xmlns:w16cid='http://schemas.microsoft.com/office/word/2016/wordml/cid' xmlns:w15='http://schemas.microsoft.com/office/word/2012/wordml' xmlns:w14='http://schemas.microsoft.com/office/word/2010/wordml' xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' xmlns:w10='urn:schemas-microsoft-com:office:word' xmlns:wp='http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing' xmlns:wp14='http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing' xmlns:v='urn:schemas-microsoft-com:vml' xmlns:m='http://schemas.openxmlformats.org/officeDocument/2006/math' xmlns:r='http://schemas.openxmlformats.org/officeDocument/2006/relationships' xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:am3d='http://schemas.microsoft.com/office/drawing/2017/model3d' xmlns:aink='http://schemas.microsoft.com/office/drawing/2016/ink' xmlns:mc='http://schemas.openxmlformats.org/markup-compatibility/2006' xmlns:cx8='http://schemas.microsoft.com/office/drawing/2016/5/14/chartex' xmlns:cx7='http://schemas.microsoft.com/office/drawing/2016/5/13/chartex' xmlns:cx6='http://schemas.microsoft.com/office/drawing/2016/5/12/chartex' xmlns:cx5='http://schemas.microsoft.com/office/drawing/2016/5/11/chartex' xmlns:cx4='http://schemas.microsoft.com/office/drawing/2016/5/10/chartex' xmlns:cx3='http://schemas.microsoft.com/office/drawing/2016/5/9/chartex' xmlns:cx2='http://schemas.microsoft.com/office/drawing/2015/10/21/chartex' xmlns:cx1='http://schemas.microsoft.com/office/drawing/2015/9/8/chartex' xmlns:cx='http://schemas.microsoft.com/office/drawing/2014/chartex' xmlns:wpc='http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas'>";
+					s = s + "<w:body>";
+					s = s + "<w:p>";
+					s = s + "<w:pPr><w:jc w:val='center'/><w:spacing w:lineRule='auto' w:line='240' w:before='0' w:after='0'/></w:pPr>";
+					s = s + "<w:drawing>";
+					s = s + "<wp:inline>"
+					s = s + "<wp:extent cx='"+Math.round(length*360000)+"' cy='"+Math.round(height*360000)+"'/>";
+					s = s + "<wp:docPr id='1' name='Canvas 1'/>";		
+					s = s + "<a:graphic xmlns:a='http://schemas.openxmlformats.org/drawingml/2006/main'>";
+					s = s + "<a:graphicData uri='http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas'>";
+					s = s + "<wpc:wpc>";
+					s = s + "<wpc:bg><a:solidFill><a:srgbClr val='FFFFFF'/></a:solidFill></wpc:bg>";
+					s = s + "<wpc:whole/>";
+					var id = 1;
+					for(var i=0;i<=length*10;i=i+2)
+					{
+						var type = twoMmDash;
+						var width = twoMmWidth;
+						var colour = twoMmColour;
+						if (i%10==0)
+						{
+							
+							if (i%20==0)
+							{
+								width = twoCmWidth;
+								colour = twoCmColour;
+								type = twoCmDash;
+							}
+							else
+							{
+								width = oneCmWidth;
+								colour = oneCmColour;
+								type = oneCmDash;
+							}
+						}
+						s = s + getLineGeometryXML(id,i/10,0,i/10,height,colour,type,width);
+						id++;
+					}
+
+					for(var i=0;i<=height*10;i=i+2)
+					{
+						var type = twoMmDash;
+						var width = twoMmWidth;
+						var colour = twoMmColour;
+						if (i%10==0)
+						{
+							if (i%20==0)
+							{
+								width = twoCmWidth;
+								colour = twoCmColour;
+								type = twoCmDash;
+							}
+							else
+							{
+								width = oneCmWidth;
+								colour = oneCmColour;
+								type = oneCmDash;
+							}
+						}
+						s = s + getLineGeometryXML(id,0,i/10,length,i/10,colour,type,width);
+						id++;
+					}
+
+					s = s + "</wpc:wpc>";
+					s = s + "</a:graphicData>";
+					s = s + "</a:graphic>"
+					s = s + "</wp:inline>";
+					s = s + "</w:drawing>";
+					s = s + "</w:p>";
+					s = s + "<w:sectPr>";
+					s = s + "<w:pgSz w:w='11906' w:h='16838'/>";
+					s = s + "<w:pgMar w:gutter='0' w:footer='720' w:header='720' w:left='283' w:bottom='283' w:right='283' w:top='283'/>";
+					//s = s + "<w:vAlign w:val='center'/>";
+					s = s + "</w:sectPr>";
+					s = s + "</w:body>";
+					s = s + "</w:document>";
+					zip.file("word/document.xml", s);
+				}
+				
+				zip.generateAsync({type:"base64"}).then(function (base64)
+				{
+					var link = document.createElement('a');
+					link.download = "graphPaper.docx";
+					link.href = "data:application/zip;base64," + base64;
+					link.click();
+					//window.location = "data:application/zip;base64," + base64;
+				}, function (err) {
+					alert("error");
+				});
+			}
+			
+			function update(name)
+			{
+				var width = document.getElementById(name+"Width").value;
+				var colour = document.getElementById(name+"Colour").value;
+				var dash = patterns[document.getElementById(name+"Dash").value];
+				
+				
+				var out = document.getElementById(name+"Example");
+				var html = "<svg height='10' width='100' xmlns='http://www.w3.org/2000/svg'><line x1='0' y1='5' x2='100' y2='5' style='stroke:"+colour+";stroke-width:"+width+";stroke-dasharray:"+dash+"'/></svg>";
+				out.innerHTML = html;
+			}
+		</script>
+	<head>
+	<body>
+		<p><strong>Dimensions</strong>
+		<p>
+		<select id="lengthValue">
+			<option value="2">2</option>
+			<option value="4">4</option>
+			<option value="6">6</option>
+			<option value="8">8</option>
+			<option value="10">10</option>
+			<option value="12">12</option>
+			<option value="14">14</option>
+			<option value="16">16</option>
+			<option value="18">18</option>
+			<option value="20" selected>20</option>
+		</select>
+		cm by 
+		<select id="heightValue">
+			<option value="2">2</option>
+			<option value="4">4</option>
+			<option value="6">6</option>
+			<option value="8">8</option>
+			<option value="10">10</option>
+			<option value="12">12</option>
+			<option value="14">14</option>
+			<option value="16">16</option>
+			<option value="18">18</option>
+			<option value="20">20</option>
+			<option value="22">22</option>
+			<option value="24">24</option>
+			<option value="26" >26</option>
+			<option value="28" selected>28</option>
+		</select>
+		cm
+		<p><strong>Line settings</strong>
+		<table border='1'>
+			<tr>
+				<th>&nbsp;</th>
+				<th>Width</th>
+				<th>Colour</th>
+				<th>Dash</th>
+				<th>Example</th>
+			</tr>
+			<tr>
+				<th>Two cm line</th>
+				<td><input type="number" id="twoCmWidth" min="0" value="0.75" step="0.05" onchange="update('twoCm')"/></td>
+				<td><input type="color" id="twoCmColour" value="#000000" onchange="update('twoCm')"/></td>
+				<td>
+					<select id="twoCmDash" onchange="update('twoCm')">
+						<option value="dash">Dash</option>
+						<option value="dashDot">Dash Dot</option>
+						<option value="dot">Dot</option>
+						<option value="lgDash">Large Dash</option>
+						<option value="lgDashDot">Large Dash Dot</option>
+						<option value="lgDashDotDot">Large Dash Dot Dot</option>
+						<option value="solid" selected>Solid</option>
+						<option value="sysDash">System Dash</option>
+						<option value="sysDashDot">System Dash Dot</option>
+						<option value="sysDashDotDot">System Dash Dot Dot</option>
+						<option value="sysDot">System Dot</option>
+					</select>
+				</td>
+				<td>
+					<div id="twoCmExample"/>
+						<svg height="10" width="100" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="100" y2="5" style="stroke:#000000;stroke-width:0.75"/></svg>
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<th>One cm line</th>
+				<td><input type="number" id="oneCmWidth" min="0" value="0.5" step="0.05" onchange="update('oneCm')"/></td>
+				<td><input type="color" id="oneCmColour" value="#000000" onchange="update('oneCm')"/></td>
+				<td>
+					<select id="oneCmDash" onchange="update('oneCm')">
+						<option value="dash">Dash</option>
+						<option value="dashDot">Dash Dot</option>
+						<option value="dot">Dot</option>
+						<option value="lgDash">Large Dash</option>
+						<option value="lgDashDot">Large Dash Dot</option>
+						<option value="lgDashDotDot">Large Dash Dot Dot</option>
+						<option value="solid" selected>Solid</option>
+						<option value="sysDash">System Dash</option>
+						<option value="sysDashDot">System Dash Dot</option>
+						<option value="sysDashDotDot">System Dash Dot Dot</option>
+						<option value="sysDot">System Dot</option>
+					</select>
+				</td>
+				<td>
+					<div id="oneCmExample"/>
+						<svg height="10" width="100" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="100" y2="5" style="stroke:#000000;stroke-width:0.5"/></svg>
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<th>Two mm line</th>
+				<td><input type="number" id="twoMmWidth" min="0" value="0.5" step="0.05" onchange="update('twoMm')"/></td>
+				<td><input type="color" id="twoMmColour" value="#000000" onchange="update('twoMm')"/></td>
+				<td>
+					<select id="twoMmDash" onchange="update('twoMm')">
+						<option value="dash">Dash</option>
+						<option value="dashDot">Dash Dot</option>
+						<option value="dot">Dot</option>
+						<option value="lgDash">Large Dash</option>
+						<option value="lgDashDot">Large Dash Dot</option>
+						<option value="lgDashDotDot">Large Dash Dot Dot</option>
+						<option value="solid">Solid</option>
+						<option value="sysDash">System Dash</option>
+						<option value="sysDashDot">System Dash Dot</option>
+						<option value="sysDashDotDot">System Dash Dot Dot</option>
+						<option value="sysDot" selected>System Dot</option>
+					</select>
+				</td>
+				<td>
+					<div id="twoMmExample"/>
+						<svg height="10" width="100" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="100" y2="5" style="stroke:#000000;stroke-width:0.5;stroke-dasharray:1,1"/></svg>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<!--
+		<p>Dash (dash) <svg height="10" width="300" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="250" y2="10" style="stroke:black;stroke-width:1;stroke-dasharray:4,4"/></svg> 
+		<p>Dash Dot (dashDot) <svg height="10" width="300" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="250" y2="10" style="stroke:black;stroke-width:1;stroke-dasharray:4,3,1,3"/></svg> 
+		<p>Dot (dot) <svg height="10" width="300" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="250" y2="10" style="stroke:black;stroke-width:1;stroke-dasharray:1,3"/></svg>
+		<p>Large Dash (lgDash) <svg height="10" width="300" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="250" y2="10" style="stroke:black;stroke-width:1;stroke-dasharray:8,3"/></svg>
+		<p>Large Dash Dot (lgDashDot) <svg height="10" width="300" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="250" y2="10" style="stroke:black;stroke-width:1;stroke-dasharray:8,3,1,3"/></svg>
+		<p>Large Dash Dot Dot (lgDashDotDot) <svg height="10" width="300" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="250" y2="10" style="stroke:black;stroke-width:1;stroke-dasharray:8,3,1,3,1,3"/></svg>
+		<p>Solid (solid) <svg height="10" width="300" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="250" y2="10" style="stroke:black;stroke-width:1"/></svg>
+		<p>System Dash (sysDash) <svg height="10" width="300" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="250" y2="10" style="stroke:black;stroke-width:1;stroke-dasharray:3,1"/></svg>
+		<p>System Dash Dot (sysDashDot) <svg height="10" width="300" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="250" y2="10" style="stroke:black;stroke-width:1;stroke-dasharray:3,1,1,1"/></svg>
+		<p>System Dash Dot Dot (sysDashDotDot) <svg height="10" width="300" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="250" y2="10" style="stroke:black;stroke-width:1;stroke-dasharray:3,1,1,1,1,1"/></svg>
+		<p>System Dot (sysDot) <svg height="10" width="300" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="250" y2="10" style="stroke:black;stroke-width:1;stroke-dasharray:1,1"/></svg>
+		-->
+		
+		<p><button id="download" onclick="download()">Download</button>
+	</body>
+</html>
